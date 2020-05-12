@@ -135,7 +135,6 @@ class Graph:
             if current_vertex == destination_vertex:
                 path.append(current_vertex)
                 return path
-            # print(current_vertex)
             if current_vertex not in visited:
                 visited.add(current_vertex)
                 path.append(current_vertex)
@@ -150,7 +149,28 @@ class Graph:
 
         This should be done using recursion.
         """
-        pass  # TODO
+
+        def search(vertex, visited):
+            if vertex == destination_vertex:  # base case, we have found it
+                return [vertex]
+
+            if vertex not in visited:  # if it's not in visited
+                visited.add(vertex)  # add it to visited
+                if self.get_neighbors(vertex) is None:  # if there are no neighbors
+                    return None
+                for neighbor in self.get_neighbors(vertex):
+                    # call it recursively on the neighbors
+                    path = search(neighbor, visited)
+                    if path:
+                        return [vertex, *path]  # return vertex and path items
+
+        visited = set()  # set visited from helper to a set
+        path = search(starting_vertex, visited)
+
+        return path
+
+
+
 
 if __name__ == '__main__':
     graph = Graph()  # Instantiate your graph
@@ -217,5 +237,5 @@ if __name__ == '__main__':
         [1, 2, 4, 6]
         [1, 2, 4, 7, 6]
     '''
-    print(graph.dfs(1, 6))
-    # print(graph.dfs_recursive(1, 6))
+    # print(graph.dfs(1, 6))
+    print(graph.dfs_recursive(1, 6))
