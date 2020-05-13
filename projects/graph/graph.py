@@ -174,10 +174,8 @@ class Graph:
     def dfs_recursive(self, start_vert, target_value, visited=None, path=None):
 
         # print(start_vert)
-
         if visited is None:
             visited = set()
-
         if path is None:
             path = []
 
@@ -189,7 +187,6 @@ class Graph:
         # Base case
         if start_vert == target_value:
             return path
-
         for child_vert in self.get_neighbors(start_vert):
             if child_vert not in visited:
                 new_path = self.dfs_recursive(child_vert, target_value, visited, path)
