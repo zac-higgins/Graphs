@@ -71,9 +71,12 @@ class SocialGraph:
         # Create friendships for the first X pairs of the list
         # X is determined by the formula: num_users * avg_friendships // 2
         # Need to divide by 2 since each add_friendship() creates 2 friendships
+        count_add_friendship_calls = 0
         for i in range(num_users * avg_friendships // 2):
             friendship = possible_friendships[i]
             self.add_friendship(friendship[0], friendship[1])
+            count_add_friendship_calls += 1
+        print("add_friendship() calls: ", count_add_friendship_calls)
 
     def bft(self, starting_vertex):
         """
@@ -142,13 +145,29 @@ class SocialGraph:
         connections = {} # store the final output
         for connection in network:
             connections[connection] = self.bfs(user_id, connection)
+        self.network_percentage(network, connections)
         return connections
+
+    def network_percentage(self, network, connections):
+        print("Number of users", len(self.users))
+        print("Number of connections: ", len(network))
+        percentage = int((len(network) / len(self.users)) * 100)
+        print(f"Percentage of Network: {percentage}%")
+
+        lengths = []
+        for connection in connections:
+            lengths.append(len(connections[connection]) - 1)
+            # print(connections[connection])
+        average = sum(lengths) // len(lengths)
+        print(f"Average Degrees of separation: {average}")
+
+
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    sg.populate_graph(10, 2)
+    sg.populate_graph(1000, 5)
     sg.users
-    print("Friendships: ", sg.friendships)
-    connections = sg.get_all_social_paths(5)
-    print("Connections: ", connections)
+    # print("Friendships: ", sg.friendships)
+    connections = sg.get_all_social_paths(1)
+    # print("Connections: ", connections)
