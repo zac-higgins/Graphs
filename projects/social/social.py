@@ -1,3 +1,17 @@
+import random
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
 class User:
     def __init__(self, name):
         self.name = name
@@ -42,11 +56,78 @@ class SocialGraph:
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
-
         # Add users
+        for i in range(0, num_users):
+            self.add_user(f"User {i}")
+        # Create Frienships
+        # Generate all possible friendship combinations
+        possible_friendships = []
+        # Avoid duplicates by ensuring the first number is smaller than the second
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+        # Shuffle the possible friendships
+        random.shuffle(possible_friendships)
+        # Create friendships for the first X pairs of the list
+        # X is determined by the formula: num_users * avg_friendships // 2
+        # Need to divide by 2 since each add_friendship() creates 2 friendships
+        for i in range(num_users * avg_friendships // 2):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])
 
-        # Create friendships
+    def bft(self, starting_vertex):
+        """
+        Print each vertex in breadth-first order
+        beginning from starting_vertex.
+        """
+        q = Queue()
+        q.enqueue(starting_vertex)
+        # keep track of visited nodes
+        visited = {}
+        # repeat until queue is empty
+        while q.size() > 0:
+
+            # dequeue first vert
+            current_vertex = q.dequeue()
+
+            # if it's not visited:
+            if current_vertex not in visited:
+                visited[current_vertex] = self.friendships[current_vertex]
+            # add neighbors to queue
+                # print(f"friendships of {current_vertex}: ", self.friendships[current_vertex])
+                for next_vertex in self.friendships[current_vertex]:
+                    q.enqueue(next_vertex)
+        return visited
+
+    def bfs(self, starting_vertex, destination_vertex):
+        """
+        Return a list containing the shortest path from
+        starting_vertex to destination_vertex in
+        breath-first order.
+        """
+
+        # keep track of visited nodes
+        visited = []
+        queue = [[starting_vertex]]
+
+        if starting_vertex == destination_vertex:
+            return [starting_vertex]
+
+        # repeat until queue is empty
+        while queue:
+            path = queue.pop(0)
+            node = path[-1]
+            if node not in visited:
+                neighbors = self.friendships[node]
+                for neighbor in neighbors:
+                    new_path = list(path)
+                    new_path.append(neighbor)
+                    queue.append(new_path)
+                    if neighbor == destination_vertex:
+                        return new_path
+                visited.append(node)
+
+        return []
 
     def get_all_social_paths(self, user_id):
         """
@@ -57,14 +138,17 @@ class SocialGraph:
 
         The key is the friend's ID and the value is the path.
         """
-        visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
-        return visited
+        network = self.bft(user_id) # sub-graph island containing user
+        connections = {} # store the final output
+        for connection in network:
+            connections[connection] = self.bfs(user_id, connection)
+        return connections
 
 
 if __name__ == '__main__':
     sg = SocialGraph()
     sg.populate_graph(10, 2)
-    print(sg.friendships)
-    connections = sg.get_all_social_paths(1)
-    print(connections)
+    sg.users
+    print("Friendships: ", sg.friendships)
+    connections = sg.get_all_social_paths(5)
+    print("Connections: ", connections)
